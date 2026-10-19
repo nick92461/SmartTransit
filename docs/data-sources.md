@@ -4,6 +4,8 @@
 |---|---|---|---|
 | **MTA GTFS static (subway)** | Stations, routes, schedules, transfers, track shapes | Free | Use the hourly **supplemented** feed so planned work / weekend changes are included |
 | **MTA GTFS-Realtime (subway)** | Live predicted arrival times, service alerts | Free | Several feeds split by line group (ACE, BDFM, G, JZ, NQRW, L, 1–7, SIR). Believed to need no API key. **Verify.** |
+| **MTA GTFS trip headsigns + station direction labels** | Naming directions the way riders do ("toward Far Rockaway", "uptown", "Brooklyn-bound") | Free | Check that the MTA stations list includes north/south direction labels |
+| **NYCT GTFS-Realtime extension (track info)** | Possibly detecting "same platform" for route repair | Free | **Open question:** standard GTFS stop IDs are per station + direction, not per platform/track. Confirm what the track fields give us. |
 | **MTA Subway Entrances and Exits** (NYC Open Data) | Entrance coordinates for walking targets | Free | Some entrances serve one direction only. Check what the dataset says about this. |
 | **Apple MapKit (iOS)** | Map, place search, walking directions + ETAs | Free | Per-device rate limits; cache walking times to nearby entrances |
 | **Google Routes API** | **Dev-only** accuracy benchmark | Free tier / pay per use | Not used in the shipped app |

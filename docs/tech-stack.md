@@ -19,8 +19,10 @@
 | Map | **react-native-maps** (Apple Maps on iOS) |
 | Walking directions + place search | Small **Swift module** (Expo Modules API) calling MapKit `MKDirections` / `MKLocalSearch` |
 | Location (incl. background) | **expo-location** + **expo-task-manager** |
-| Notifications | **expo-notifications** |
+| Notifications | **expo-notifications**, with action buttons (notification categories) for "Yep · Missed it · Not here yet" |
 | Lock screen / Dynamic Island | **Swift + SwiftUI** with ActivityKit + WidgetKit, added via **expo-apple-targets** |
+| Lock-screen buttons on the Live Activity | **App Intents** (Swift, iOS 17+) |
+| Motion signals (missed-train detection) | **expo-sensors**, or Core Motion activity detection via the Swift module if needed |
 | On-device storage | **expo-sqlite** |
 | App state | React state + **Zustand** |
 | Styling | Plain React Native `StyleSheet` |
@@ -30,7 +32,9 @@ Pure TypeScript, no platform code, so it runs on phone, server, and in tests on 
 - **RAPTOR** router (subway only, transfers included)
 - GTFS-Realtime decoding via **gtfs-realtime-bindings**
 - Mode ranking (Now / Leave at / Arrive by), "can I make it / run for it" logic
-- Copy generator (NYC voice)
+- Route repair (4-step order) and the alternatives check, with tunable settings
+- Missed-train confidence scoring (pure logic; the app supplies the signals)
+- Copy generator (NYC voice), including change notifications with uptown/downtown/last-stop direction names
 
 ## Server — `services/api`
 
