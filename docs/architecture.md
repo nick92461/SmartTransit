@@ -33,12 +33,14 @@ The **routing engine** (`packages/core`) is shared TypeScript. It runs on the ph
 - **The phone is the brain during a trip.** Background location keeps the app running (also underground, where fixes are coarse or missing), so it re-times, repairs, and updates the Live Activity itself.
 - The server is the backup: if the phone's heartbeat goes quiet for more than 90 s, the server re-times the trip and pushes Live Activity updates (no repairs).
 
-### 3. Committed plans + change alerts
-1. User commits a plan → app sends the server: specific trains, transfers, arrive-by deadline, push token(s).
+### 3. Planned trips + change alerts
+Details: [design/trip-lifecycle.md §2](design/trip-lifecycle.md#2-planned-trips).
+1. User saves a trip (From, To, goal, chosen option) → stored on the phone; app sends the server: label, specific trains, transfers, arrive-by deadline. Push tokens are registered separately.
 2. Server re-checks every committed plan against each new feed snapshot (~30 s), plus planned work and service alerts before live predictions are in range.
 3. If the plan no longer meets the deadline, the server sends a **problem-only** notification ("Your plan won't get you there by 9:00 anymore"). It does not choose a replacement.
-4. Tapping the notification opens the app, which re-runs the search and shows a fresh options list.
-5. At departure time the server can **push-to-start** the Live Activity (iOS 17.2+).
+4. Tapping the notification opens that planned trip, with a fresh options list on top. The user picks; the plan updates.
+5. At departure time the server sends "Time to go" and can **push-to-start** the Live Activity (iOS 17.2+).
+6. Planned trips can be edited (goal, time, places, train) or deleted at any time before they start.
 
 ### 4. Active trip: repairs
 When a train on the active route is missed or no longer viable, the app patches the route in place. It tries these in order and stops at the first that works:

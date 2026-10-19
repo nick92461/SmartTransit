@@ -7,7 +7,8 @@ _Last updated: 2026-10-19_
 - Product plan, side-chat decisions, and the full design are written.
 - Design specs: [docs/design/](docs/design/README.md), built from real MTA data downloaded and decoded on 2026-10-19.
 - Step-by-step build order: [docs/implementation-plan.md](docs/implementation-plan.md).
-- No code yet.
+- Competitive check done (Citymapper, [docs/competitors.md](docs/competitors.md)). **Planned trips** are now the headline feature; departure picker and "2 train" labels added to the specs.
+- **M1.1 in progress:** root config, `packages/core`, and its first test are typed and passing; ESLint/Prettier config next.
 
 ## Next step
 **M1.1 — Monorepo scaffold** (see the implementation plan).
@@ -33,3 +34,5 @@ Workflow: Sonnet explains and gives code in chunks, the owner types it, Sonnet r
 - [ ] Confirm current pricing: Expo EAS free tier limits, Cloudflare Workers Paid, Google Routes API (dev benchmark only).
 - [ ] Review MTA data terms of use (attribution, no implied endorsement).
 - [ ] Final app name ("SmartTransit" is a working name).
+- [ ] Repeating planned trips ("every weekday, arrive at Work by 9:00")? Decide after M6.
+- [ ] How does Citymapper react to delays and to user-caused lateness as a trip approaches? Test it on a real trip.

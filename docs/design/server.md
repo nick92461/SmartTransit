@@ -27,8 +27,9 @@ One Cloudflare Worker, written in TypeScript with **Hono** (a small router built
 | `GET /v1/alerts` | none | → `ServiceAlert[]` |
 | `POST /v1/devices` | none | `{ apnsToken, pushToStartToken?, appVersion, sandbox }` → `{ deviceId, deviceSecret }` |
 | `PUT /v1/devices/me` | device | `{ apnsToken?, pushToStartToken?, appVersion? }` → `204` |
-| `POST /v1/plans` | device | `{ kind: 'committed' \| 'active', mode, deadline, journey }` → `{ planId }` |
-| `PATCH /v1/plans/:id` | device | `{ journey?, liveActivityToken?, heartbeat?: true, kind? }` → `204` |
+| `POST /v1/plans` | device | `{ kind: 'committed' \| 'active', label, mode, deadline, journey }` → `{ planId }` |
+| `PATCH /v1/plans/:id` | device | `{ journey?, label?, mode?, deadline?, liveActivityToken?, heartbeat?: true, kind? }` → `204` (a new journey resets `status`, `broken_streak`, `last_notified_status`) |
+| `GET /v1/plans/:id` | device | → `{ status, lastCheckedAt }` (app refreshes Upcoming cards) |
 | `DELETE /v1/plans/:id` | device | → `204` |
 | `POST /v1/telemetry` | device | `{ events: { kind: 'notHereYet', tripKey, stopId, at }[] }` → `204` |
 
@@ -54,6 +55,7 @@ CREATE TABLE plans (
   id TEXT PRIMARY KEY,
   device_id TEXT NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('committed','active')),
+  label TEXT NOT NULL,                      -- "Work" / destination name, for notification copy
   mode_json TEXT NOT NULL,
   deadline INTEGER,
   journey_json TEXT NOT NULL,
@@ -82,9 +84,10 @@ for plan in plans:
   ev = core.evaluatePlan(journey, sliceIndexFor(plan) or null, snapshot, deadline, now, config)
   update status + broken_streak
   if kind = committed and ev.status = broken and broken_streak ≥ 2 and last_notified_status ≠ broken:
-      push alert (problem-only copy, time-sensitive, payload { planId })
-  if kind = committed and not push_started and now ≥ leave_at − 600 and device.push_to_start_token:
-      push-to-start Live Activity; push_started = 1
+      push alert copy.planBroken(label, deadline) (time-sensitive, payload { planId }, deep link smarttransit://trip/<id>)
+  if kind = committed and not push_started and now ≥ leave_at − 600:
+      push alert copy.timeToGo(plan) ; if device.push_to_start_token: push-to-start Live Activity
+      push_started = 1
   if kind = active and heartbeat_at < now − 90 and live_activity_token:
       push Live Activity update (re-timed content, priority 5 unless the change is notify-worthy → 10)
 DELETE FROM plans WHERE expires_at < now

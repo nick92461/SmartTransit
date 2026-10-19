@@ -115,15 +115,16 @@ Goal of the milestone: `npm run cli -- plan --from 40.7359,-73.9911 --to 40.7128
 - [ ] **M2.1 Range RAPTOR**: router.md §3. Done when it matches repeated single-departure RAPTOR on fixtures and real slices; timing printed.
 - [ ] **M2.2 Options for the three modes**: `findOptions` with windows, ranking, ties, dedupe, walk-only, `noneMeetsGoal`, `scheduleOnly`. router.md §5. Done when there's a table-driven test per mode on the tiny network.
 - [ ] **M2.3 Feasibility + run-for-it + mergeOptions/refreshFeasibility**: router.md §5, trip-lifecycle.md §1. Done when tests simulate a clock moving forward and check removal/append/no-reorder.
-- [ ] **M2.4 Copy module + time formatting**: trip-lifecycle.md §10. Done when snapshot tests cover each situation with deterministic variants.
-- [ ] **M2.5 Same-platform rule + `cross-platform.json` loader**: realtime.md §5.
-- [ ] **M2.6 evaluatePlan**: trip-lifecycle.md §7 (incl. hysteresis helper).
-- [ ] **M2.7 Route repair**: trip-lifecycle.md §4. One test per ladder step + the stability margin + the late-but-keep case + the alternatives rule.
-- [ ] **M2.8 Notification policy**: trip-lifecycle.md §5. Tests for notify vs silent, rate limit, wording.
-- [ ] **M2.9 Missed-train scorer**: trip-lifecycle.md §6. Scripted fix sequences for each scenario.
-- [ ] **M2.10 Trip reducer**: trip-lifecycle.md §3, §8. Phase transition table tests; effects asserted.
-- [ ] **M2.11 Replay harness**: `tools/replay` feeds recorded snapshots + scripted user movement through the reducer and prints a timeline (decisions, notifications). Use it to tune config values; log changes in decisions.md.
-- [ ] **M2.12 Accuracy benchmark vs Google**: testing.md. Needs a Google API key (dev only, free tier). Done when the report gives a "% matches or beats Google" number.
+- [ ] **M2.4 Departure picker**: `departuresFromPlatform`, router.md §7. Done when tests on the tiny network show every line from the platform, the arrive-by default, and late flags. Add a `--picker` flag to the CLI.
+- [ ] **M2.5 Copy module + time formatting + `lineName`**: trip-lifecycle.md §10. Done when snapshot tests cover each situation with deterministic variants, and no copy prints a bare line letter.
+- [ ] **M2.6 Same-platform rule + `cross-platform.json` loader**: realtime.md §5.
+- [ ] **M2.7 evaluatePlan**: trip-lifecycle.md §7 (incl. hysteresis helper). Used by the server *and* the app's local Upcoming re-check.
+- [ ] **M2.8 Route repair**: trip-lifecycle.md §4. One test per ladder step + the stability margin + the late-but-keep case + the alternatives rule.
+- [ ] **M2.9 Notification policy**: trip-lifecycle.md §5. Tests for notify vs silent, rate limit, wording.
+- [ ] **M2.10 Missed-train scorer**: trip-lifecycle.md §6. Scripted fix sequences for each scenario.
+- [ ] **M2.11 Trip reducer**: trip-lifecycle.md §3, §8. Phase transition table tests; effects asserted.
+- [ ] **M2.12 Replay harness**: `tools/replay` feeds recorded snapshots + scripted user movement through the reducer and prints a timeline (decisions, notifications). Also replays a **planned trip** through `evaluatePlan` to check alert timing. Use it to tune config values; log changes in decisions.md.
+- [ ] **M2.13 Accuracy benchmark vs Google**: testing.md. Needs a Google API key (dev only, free tier). Done when the report gives a "% matches or beats Google" number.
 
 ---
 
@@ -140,8 +141,8 @@ Goal of the milestone: `npm run cli -- plan --from 40.7359,-73.9911 --to 40.7128
 1. Expo app in `apps/mobile`, consuming `@smarttransit/core` from the workspace; first EAS development build on the iPhone.
 2. Data sync + stores; realtime poller.
 3. MapKit native module (search completions, resolve, walking ETAs, walking route).
-4. Home: destination, saved places, mode chip, options list with countdowns.
-5. Option detail: map with route polylines (shapes + walking) and entrance pins.
+4. Home: destination (+ From for future trips), saved places, mode chip, options list with countdowns, `LineLabel` everywhere.
+5. Option detail: map with route polylines (shapes + walking) and entrance pins; **departure picker**.
 6. Measure routing time on device; log the decision on threading.
 
 ## M5: Navigation (outline)
@@ -152,8 +153,13 @@ Goal of the milestone: `npm run cli -- plan --from 40.7359,-73.9911 --to 40.7128
 5. Repair UI (animated time changes, alternatives, missed screen).
 6. Server reporting + heartbeat (fallback pushes).
 
-## M6: Plan ahead (outline)
-Commit flow, far-future notice, deep link from plan alerts, push-to-start end-to-end.
+## M6: Planned trips (outline; the headline feature)
+1. `usePlannedTripsStore` + Save trip flow (From required, optional name) + `POST /v1/plans`.
+2. Upcoming cards on Home with live status (server status + local `evaluatePlan`).
+3. Planned trip screen: plan, far-future notice, departure picker, edit (goal/time/From/To), delete.
+4. "Won't make it" notification → deep link → "Here's what works now" options → pick → `PATCH`.
+5. "Time to go" notification + push-to-start Live Activity → start the active trip.
+6. End-to-end test: save tomorrow's trip tonight, watch it through the morning (including a replay of a broken plan).
 
 ## M7: Ship (outline)
 Real-ride test matrix (lines × boroughs × times of day), Maestro E2E on EAS, Sentry, privacy policy, MTA attribution, App Store assets, TestFlight beta, release.

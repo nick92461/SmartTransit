@@ -141,3 +141,23 @@ function findOptions(input: {
 - **From the current location:** normal access paths from a new origin.
 
 All three are plain `RaptorQuery` inputs. No special algorithm code.
+
+## 7. Departure picker (`departures.ts`)
+
+```ts
+function departuresFromPlatform(input: {
+  journey: Journey;                // the option being viewed
+  now: EpochSec; deadline: EpochSec | null;
+  egress: AccessPath[];
+  index: TimetableIndex; network: Network; config: Config;
+  windowSec?: Sec;                 // default optionsWindowSec
+}): DepartureChoice[]
+```
+1. `S` = the journey's first ride board stop; `stationOf(S)` = its station.
+2. Run **Range RAPTOR "from a stop"** with sources = the children of that station in the journey's direction, over `[firstRide.departAt − 20 min, firstRide.departAt + windowSec]`.
+   Every line from that platform is included, not just the planned one.
+3. For each resulting journey: prepend the original access walk, so `leaveAt = departAt − access.totalSec`.
+   Compute `feasibility` (same rules as router §5) and `lateBySec` vs `deadline − arriveByBufferSec`.
+4. Drop `missed` rows. Sort by departure time. One row per first-ride trip. Mark the journey's own train `isCurrent`.
+
+Picking a row replaces the option's journey (and, for a planned trip, triggers `PATCH /v1/plans/:id`).

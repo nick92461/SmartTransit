@@ -130,3 +130,13 @@ The pipeline ships `network.json` plus one slice per service day (D−1…D+14),
 
 ## 2026-10-19 — Minimum iOS 17.2
 **Why:** needed for interactive Live Activity buttons and push-to-start.
+
+## 2026-10-19 — Positioning after testing Citymapper
+The owner tested Citymapper ([competitors.md](competitors.md)). It covers walk + subway trips well but has feature bloat, unexplained presets, pictogram-only line labels, and **no way to save a trip for later**.
+Decisions:
+- **Planned trips become the headline feature** (save, edit, watch, "won't make it" alerts, "time to go"). Planned trips need an explicit **From** place.
+- **Departure picker** (parity with Citymapper): same-platform departures across all lines, live arrival, late warning; arrive-by default = closest to the deadline without being late.
+- **Lines always named in words** ("2 train"), never a bare bullet.
+- The parity rule now covers competitors' useful walk + subway features, not just Apple/Google accuracy.
+**Why:** these are the gaps that make the niche winnable; the app stays minimal everywhere else.
+**Deferred:** repeating trips ("every weekday"). Strong idea; decide after M6.

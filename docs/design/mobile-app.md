@@ -8,17 +8,18 @@ Expo (latest stable SDK when M4 starts; SDK 58 as of 2026-10), React Native, Typ
 | Route | Screen | Contents |
 |---|---|---|
 | `_layout.tsx` | Root | Providers, data bootstrap (manifest → network → day slices), notification response handler, deep links |
-| `index.tsx` | **Home** | "Where to?" field, saved place chips, mode chip (Now / Leave at / Arrive by), then the **options list** |
-| `search.tsx` | Search (modal) | MapKit autocomplete; tapping a result sets the destination |
-| `option/[id].tsx` | Option detail | Map with the full route + entrance pins; leg list; **Go**; **Watch this plan** (future trips) |
+| `index.tsx` | **Home** | **Upcoming** planned-trip cards (status: On track / Cutting it close / Won't make it), "Where to?" field, saved place chips, mode chip (Now / Leave at / Arrive by), then the **options list** |
+| `search.tsx` | Search (modal) | MapKit autocomplete; sets **To**, or **From** (From appears for leave-at/arrive-by; defaults to current location for "now", a saved place otherwise) |
+| `option/[id].tsx` | Option detail | Map with the full route + entrance pins; leg list; **departure picker** on the boarding step; **Go** (now) or **Save trip** (future) |
+| `trips/[id].tsx` | Planned trip | The saved plan, status, far-future notice, departure picker, edit (goal/time/From/To), delete; "Here's what works now" options on top when broken |
 | `trip.tsx` | Active trip | Map following the user; big current-step card; upcoming steps; "Missed it" button; alternatives; End |
 | `missed.tsx` | Missed it (modal) | Only for `fullReplan` from a miss: "Damn, you missed it. Here are your options." |
 | `settings.tsx` | Settings | Saved places, notifications/location permission status, attribution (MTA data, Apple Maps) |
 
-Deep links: `smarttransit://plan/<planId>` (from a "plan won't make it" notification) → Home with that destination and goal, re-searched.
+Deep links: `smarttransit://trip/<id>` (from "won't make it" and "time to go" notifications) → the planned trip screen.
 
 ## Components (`components/`)
-`OptionCard`, `RouteBullet` (colored circle + line letter, VoiceOver label "A train"), `TimeText` (animates changes, briefly shows the old time struck through), `ModeChip`, `Countdown`, `LegList`, `RouteMap`.
+`OptionCard`, `UpcomingTripCard`, `DeparturePicker` (scroll wheel of `DepartureChoice`s; live arrival + late warning), `LineLabel` (colored bullet **plus the words** "A train"; never a bare bullet; VoiceOver label "A train"), `TimeText` (animates changes, briefly shows the old time struck through), `ModeChip`, `Countdown`, `LegList`, `RouteMap`.
 
 Design: system font, lots of white space, **one big time per card**, route colors from `network.routes`. Dark mode. Dynamic Type.
 
@@ -31,6 +32,7 @@ Design: system font, lots of white space, **one big time per card**, route color
 | `useSearchStore` | origin (current location), destination, mode | |
 | `useOptionsStore` | `OptionsResult`, refresh timers | Calls `findOptions` / `refreshFeasibility` / `mergeOptions` |
 | `useTripStore` | `ActiveTrip` | `dispatch(event)` → `tripReducer` → runs effects via the effect executor |
+| `usePlannedTripsStore` | `PlannedTrip[]` | Persisted; syncs with `/v1/plans`; local `evaluatePlan` re-check when the app is open |
 | `usePlacesStore` | saved places (Home, Work…) | Persisted |
 | `useDeviceStore` | deviceId/secret, push tokens | Secret in **expo-secure-store** |
 

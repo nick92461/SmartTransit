@@ -19,7 +19,8 @@ All planning lives in this repo so any work session has full context.
 | [STATUS.md](STATUS.md) | **Start here.** Current state, what's next, open questions |
 | [docs/implementation-plan.md](docs/implementation-plan.md) | Step-by-step build order with checkboxes |
 | [docs/design/](docs/design/README.md) | Detailed design specs: types, algorithms, server, app |
-| [docs/product.md](docs/product.md) | Product vision, modes, UX principles, copy voice |
+| [docs/product.md](docs/product.md) | Product vision, positioning, modes, planned trips, copy voice |
+| [docs/competitors.md](docs/competitors.md) | Competitor findings (Citymapper) and what they mean for us |
 | [docs/architecture.md](docs/architecture.md) | How the system works end to end |
 | [docs/tech-stack.md](docs/tech-stack.md) | Languages, frameworks, services |
 | [docs/data-sources.md](docs/data-sources.md) | MTA feeds, Apple MapKit, other data |

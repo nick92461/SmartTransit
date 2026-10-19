@@ -10,7 +10,7 @@ Milestone overview. **Step-by-step tasks and checkboxes live in [implementation-
 | **M3** Backend | Worker + R2 + FeedPoller + D1 + plan monitor + APNs | |
 | **M4** App MVP | Expo app: search, options list, route map, on-device routing | |
 | **M5** Navigation | Active trip, background location, Live Activity, repair UI, notifications | |
-| **M6** Plan ahead | Commit plans, far-future notice, plan alerts, push-to-start | |
+| **M6** Planned trips (headline feature) | Save/edit/delete trips for later, Upcoming cards, "won't make it" alerts, "time to go" + push-to-start | |
 | **M7** Ship | Real-ride testing, E2E, Sentry, privacy, TestFlight, App Store | |
 
 ## Milestone exit rule

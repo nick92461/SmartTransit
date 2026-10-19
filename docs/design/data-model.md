@@ -292,17 +292,52 @@ export interface LiveActivityContent {
 }
 ```
 
+## Departure picker
+
+```ts
+/** One row in the departure picker on an option's boarding step. */
+export interface DepartureChoice {
+  journey: Journey;                        // full journey if you take this departure
+  routeId: RouteId;
+  departAt: EpochSec;                      // from the boarding platform
+  feasibility: Feasibility;                // can you still get there in time to board?
+  lateBySec: Sec | null;                   // vs deadline (arrive-by only)
+  isCurrent: boolean;                      // the option's own train
+}
+```
+
+## Planned trip (on the phone)
+
+```ts
+export type PlanStatus = 'onTrack' | 'atRisk' | 'broken';   // UI: "On track" / "Cutting it close" / "Won't make it"
+
+export interface PlannedTrip {
+  id: string;                              // same id as the server plan
+  name: string | null;                     // "Work"; null → use destination.name
+  origin: Place;                           // required: not "current location"
+  destination: Place;
+  mode: Extract<TripMode, { kind: 'leaveAt' | 'arriveBy' }>;
+  journey: Journey;                        // the chosen option (may be changed via picker/edit)
+  status: PlanStatus;                      // last known, from the server or a local re-check
+  scheduleOnly: boolean;                   // still beyond the realtime horizon
+  createdAt: EpochSec;
+  updatedAt: EpochSec;
+}
+```
+Stored locally (persisted) and mirrored to the server as a `CommittedPlan`. Origin and destination places stay on the phone; the server only gets a short `label` for notification text.
+
 ## Committed plan (server)
 
 ```ts
 export interface CommittedPlan {
   id: string;
   deviceId: string;
+  label: string;                           // "Work" or the destination name, for notification copy
   mode: TripMode;
   deadline: EpochSec | null;
   journey: Journey;
-  status: 'onTrack' | 'atRisk' | 'broken';
-  lastNotifiedStatus: 'onTrack' | 'atRisk' | 'broken' | null;
+  status: PlanStatus;
+  lastNotifiedStatus: PlanStatus | null;
   liveActivityToken: string | null;        // per-activity APNs token once started
   createdAt: EpochSec;
   expiresAt: EpochSec;                     // journey.arriveAt + 1 h
@@ -312,7 +347,7 @@ export interface PlanEvaluation {
   projectedArriveAt: EpochSec;
   brokenAtLeg: number | null;              // first ride leg that can no longer be caught
   meetsDeadline: boolean | null;           // null when no deadline
-  status: CommittedPlan['status'];
+  status: PlanStatus;
 }
 ```
 

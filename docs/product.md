@@ -16,6 +16,13 @@ With a transfer, add one line:
 
 Delays, headways, and predictions are used behind the scenes. Every time shown already includes them.
 
+## Positioning
+Citymapper can already do walk + subway trips (see [competitors.md](competitors.md)). We win this niche on four things:
+1. **Planned trips:** set up a trip for later (tomorrow's 9:00 arrival), save it, edit it, and get alerted the moment it stops working. Citymapper can only start trips *now*.
+2. **Radically minimal:** feet + subway only. No mode filters, no "Simple/Turbo" presets, nothing to decode.
+3. **Words, not just symbols:** "the **2 train**", never a bare "2" bullet a visitor can't read.
+4. **NYC voice:** copy and notifications people want to screenshot and repost.
+
 ## Three trip modes
 A destination field plus a time chip that toggles **Now / Leave at / Arrive by**. No chat, no typing out intent.
 
@@ -32,6 +39,13 @@ Tie-breakers when arrival times are close: fewer transfers, then less walking.
 - In **Leave now**, the top line becomes a countdown ("Leave in 3 min").
 - An option that can no longer be made **silently disappears**; new options appear at the bottom as time passes.
 - If nothing meets the goal, say so plainly instead of showing an empty list: _"Nothing gets you there by 9:00. Fastest is 9:07."_
+- **Line labels always include the word:** route bullet + "2 train", "A train", "S shuttle". Never a bare bullet.
+
+## Departure picker (option detail)
+Parity with Citymapper. On an option's detail screen, the boarding step has a picker of **departures from that platform**, in order: the same line and any other line that works from there.
+- Each row: line + "train", departure time, and the arrival time it leads to.
+- Choosing one updates the **leave time and arrival time live**, and warns when it would make you late (_"That one gets you in at 9:04. Late."_).
+- Defaults: the option's own train. In arrive-by, that's the departure arriving closest to (but not after) the deadline minus the buffer.
 
 ## Navigation (in-app, like Apple Maps "Go")
 - Handing a route to Apple/Google Maps can't preserve our exact itinerary (they recompute their own and may add buses), so **navigation is in-app.**
@@ -67,12 +81,31 @@ The app detects a missed train from location and motion signals. When it's sure,
 "Not here yet" covers MTA data saying a train has left when it hasn't. Never ask on every trip.
 Underground transfers (no GPS) are assumed made. The active trip screen has a small **"Missed it"** button.
 
-## Planning ahead + change alerts
+## Planned trips (headline feature)
+Set up a trip before it's time to go, keep it, and let the app watch it.
+
+**Creating one**
+- From the options list for a future trip (leave at / arrive by), tap **"Save trip"** on an option.
+- Planned trips need a **From** place, because "current location" isn't where you'll be tomorrow. Default to a saved place (Home); otherwise ask.
+- Optional name ("Work", "Dentist"). Otherwise use the destination name.
+
+**Home screen:** an **Upcoming** section above search, with one card per planned trip:
+> **Tomorrow · Work** · Leave by 8:31 · A train at 8:38 · Arrive 8:54 · ✓ On track
+
+**Editing:** tap a planned trip to see the full plan. You can:
+- change the time/goal or the From/To places (the app re-searches; pick a new option);
+- switch trains with the departure picker;
+- delete it.
+
+**While it waits:**
 - Plans far in the future are based on the schedule. Show a clear notice, in the app's voice:
   _"This is the plan as of now. Live train times kick in about 30 min before. We'll ping you if anything changes."_
-- When the user **commits** to a plan, the server watches it: planned work, service alerts, and live predictions once in range.
-- As soon as the plan **stops meeting the arrival goal**, the notification states only the problem: _"Your plan won't get you there by 9:00 anymore."_ Tapping it opens the refreshed options list. The server doesn't pick a replacement route.
-- At departure time, the Live Activity starts on its own (push-to-start, iOS 17.2+).
+- The server watches the saved plan: planned work, service alerts, and live predictions once in range.
+- The card shows the current status: **On track** / **Cutting it close** / **Won't make it**.
+- As soon as the plan **stops meeting the arrival goal**, notify with the problem: _"Your 9:00 Work trip won't make it anymore."_ Tapping it opens the trip with a refreshed options list on top: the best options right now, clearly ranked. The user picks; the app never swaps the plan by itself.
+- At departure time, the Live Activity starts on its own (push-to-start, iOS 17.2+) and a "Time to go" notification fires. Tapping it starts the trip (Go).
+
+**Later idea (not committed):** repeating trips ("every weekday, arrive at Work by 9:00").
 
 ## Walking time
 - Use Apple's walking estimates as-is. They're conservative, which gives riders a comfortable cushion.
@@ -87,7 +120,8 @@ Not bland. Short, confident, a little New York. Examples:
 
 ## The parity rule
 - **Minimum:** never worse than Apple Maps / Google Maps on accuracy. Where data is limited (far-future plans, unexpected disruptions), every app has the same limit. We match it and are open about it.
-- **Above that:** beat them where data allows (committed-plan alerts, in-place route repair, clearer answers, run-for-it guidance).
+- **Above that:** beat them where data allows (planned trips with alerts, in-place route repair, clearer answers, run-for-it guidance).
+- **Competitors count too:** if Citymapper does something useful for walk + subway riders (e.g. the departure picker), we match it.
 - **Always:** clearer and simpler.
 
 Using Apple's own MapKit for search, maps, and walking means those parts start at Apple-level quality. The router is the part we must prove. See [testing.md](testing.md) for the benchmark against Google.

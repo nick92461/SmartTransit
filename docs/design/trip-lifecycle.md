@@ -22,15 +22,26 @@ Merging old and new results (`mergeOptions`), so the list doesn't jump around:
 - New options are **appended at the bottom**.
 - If the best option changes, move it to the top with an animation. That's the only reorder allowed.
 
-## 2. Committed plans
+## 2. Planned trips
 
-User taps **"Watch this plan"** on an option (leave-at / arrive-by, or any trip more than ~10 min away):
-1. App `POST /v1/plans` with the journey, mode, and deadline.
-2. If `scheduleOnly`, show the far-future notice (copy: `copy.farFutureNotice`).
-3. The server evaluates the plan with every snapshot (section 7) and sends a **problem-only** notification when it breaks.
-4. Tapping that notification opens the app on the **options list** for the same destination and goal. The app re-searches; the server never picks a route.
-5. At `leaveAt − 10 min`, the server push-starts the Live Activity (iOS 17.2+).
-   The plan becomes active when the user taps Go (or automatically when the user taps into the Live Activity).
+The headline feature (see [../product.md](../product.md#planned-trips-headline-feature)). A `PlannedTrip` lives on the phone and is mirrored to the server as a `CommittedPlan`.
+
+```
+ Save ──► Waiting ──(status changes)──► Waiting … ──(leave time)──► Time to go ──Go──► Active trip
+   ▲        │  edit / pick another train / delete
+   └────────┘
+```
+
+1. **Save:** the user taps **"Save trip"** on an option from a leave-at / arrive-by search. The search must have an explicit **From** place.
+   App: store `PlannedTrip` locally → `POST /v1/plans { kind: 'committed', label, mode, deadline, journey }`.
+   If `scheduleOnly`, show the far-future notice (copy: `copy.farFutureNotice`).
+2. **Waiting:** the server evaluates the plan with every snapshot (section 7).
+   The app also re-checks locally whenever it's open (`evaluatePlan` with its own index), so the Upcoming card status is fresh without waiting for a push.
+3. **Broken:** the server sends a **problem-only** notification (`copy.planBroken`: "Your 9:00 Work trip won't make it anymore."), deep link `smarttransit://trip/<id>`.
+   The app opens the planned trip with a **"Here's what works now"** options list at the top (a fresh search, same From/To/goal). Picking one replaces the journey → `PATCH`. The app never swaps the plan by itself.
+4. **Edit:** change goal, time, From or To → re-search → pick → `PATCH`. Change train via the departure picker → `PATCH`. Delete → `DELETE`.
+5. **Time to go:** at `leaveAt − 10 min`, the server push-starts the Live Activity (iOS 17.2+) and sends a "Time to go" notification. Tapping either starts the active trip (`PATCH kind: 'active'`). Planned trips are never started automatically.
+6. **Expiry:** a planned trip that was never started is removed one hour after its `arriveAt`.
 
 ## 3. Active trip state machine (`reducer.ts`)
 
@@ -186,6 +197,7 @@ The phone is the brain during a trip. It reports the active trip (`reportToServe
 If the heartbeat is more than 90 s old (the app was suspended), the server **re-times** the journey with `evaluatePlan` and pushes Live Activity updates. It never repairs routes; that needs the phone's location.
 
 ## 10. Copy (`copy/`)
-- One function per situation (`leaveNow`, `runForIt`, `missedSameLine`, `lateBy`, `farFutureNotice`, `nothingMeetsGoal`, `planBroken`…), each returning a string.
+- One function per situation (`leaveNow`, `runForIt`, `missedSameLine`, `lateBy`, `farFutureNotice`, `nothingMeetsGoal`, `planBroken`, `timeToGo`, `planStatusLabel`, `pickerLate`…), each returning a string.
+- Lines are always named with the word: `lineName('2') → "2 train"`, `lineName('GS') → "S shuttle"`. Never a bare letter or number in copy.
 - Several variants per situation; choose by `hash(journey.id + situation) % variants.length`, so the same trip always gets the same line (stable for tests and doesn't flicker).
 - Voice: short, confident, NYC. Mild language at most ("Damn, you missed it" is the ceiling).
