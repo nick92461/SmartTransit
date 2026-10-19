@@ -17,7 +17,8 @@ Windows machine, **no Mac** and no plan to buy one. VS Code is the editor.
 ## Requirements
 - **Apple Developer Program ($99/yr)**: needed even to install development builds on your own iPhone through EAS.
 - Expo account (free tier to start).
-- Node.js LTS, pnpm, Git.
+- Node.js 24 + npm 11 (installed), Git (installed). Python 3.13 is also installed (handy for throwaway data inspection).
+- Not needed until M3: Apple Developer account. Not needed until M4: Expo account, EAS CLI.
 
 ## Not doing
 - **Unofficial "iOS simulators" from GitHub.** Real iOS can't run on Windows. Those projects are mockups, research tools for old iOS versions, or old-game emulators, and some bundle malware. They wouldn't make tests meaningful.

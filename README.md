@@ -17,6 +17,8 @@ All planning lives in this repo so any work session has full context.
 | Doc | What's in it |
 |---|---|
 | [STATUS.md](STATUS.md) | **Start here.** Current state, what's next, open questions |
+| [docs/implementation-plan.md](docs/implementation-plan.md) | Step-by-step build order with checkboxes |
+| [docs/design/](docs/design/README.md) | Detailed design specs: types, algorithms, server, app |
 | [docs/product.md](docs/product.md) | Product vision, modes, UX principles, copy voice |
 | [docs/architecture.md](docs/architecture.md) | How the system works end to end |
 | [docs/tech-stack.md](docs/tech-stack.md) | Languages, frameworks, services |
@@ -24,7 +26,7 @@ All planning lives in this repo so any work session has full context.
 | [docs/dev-environment.md](docs/dev-environment.md) | Building an iOS app from Windows (no Mac) |
 | [docs/testing.md](docs/testing.md) | Testing strategy |
 | [docs/costs.md](docs/costs.md) | Development and per-user running costs |
-| [docs/roadmap.md](docs/roadmap.md) | Milestones and task checklist |
+| [docs/roadmap.md](docs/roadmap.md) | Milestone overview |
 | [docs/decisions.md](docs/decisions.md) | Decision log (what we chose and why) |
 | [CLAUDE.md](CLAUDE.md) | Working rules for AI coding sessions |
 

@@ -92,3 +92,41 @@ At departure time the server can start the Live Activity remotely via push-to-st
 Use Apple's conservative walking times as-is. When the time left is shorter than Apple's walking estimate but enough at a jog, switch to copy like "Hustle. The C pulls in at 8:49." Other tone examples: "You've got time. Grab the coffee." / "Missed it? Next C in 4. Nobody saw."
 Station entrances are map pins the walking route ends at, not spoken instructions.
 **Why:** personality makes the app stand out and costs nothing to build.
+
+## 2026-10-19 — Detailed design up front; owner types all code
+Opus wrote the design specs (`docs/design/`) and the step-by-step implementation plan from real MTA data. Day-to-day building uses Sonnet, which teaches and reviews while the owner types the code. Rules are in CLAUDE.md.
+**Why:** the owner wants to learn by writing the code; a fixed design keeps step-by-step work consistent.
+
+## 2026-10-19 — npm workspaces (not pnpm)
+**Why:** npm 11 is already installed, and npm avoids Metro/Expo symlink quirks.
+
+## 2026-10-19 — One algorithm for all modes: Range RAPTOR
+Plain RAPTOR first (M1), then Range RAPTOR (M2), tested against repeated plain runs.
+**Why:** one search over a departure window produces the whole options list for now / leave at / arrive by.
+**Rejected:** separate reverse search for arrive-by; running plain RAPTOR once per candidate departure (too slow on a phone).
+
+## 2026-10-19 — Per-day timetable slices, JSON + gzip
+The pipeline ships `network.json` plus one slice per service day (D−1…D+14), with content hashes in filenames.
+**Why:** the supplemented feed is 140 MB of text; one weekday is ~8.6k trips / ~250k stop times. JSON is easy to learn and debug; switch to delta-encoding only if a slice exceeds ~1.5 MB gzipped.
+
+## 2026-10-19 — Own protobuf reader instead of gtfs-realtime-bindings
+**Why:** the NYCT extension (field 1001: `is_assigned`, tracks) is dropped by standard bindings. A ~80-line wire-format reader keeps core dependency-free and runs in Hermes, Workers, and Node. Proven with a Python prototype on the live feeds.
+
+## 2026-10-19 — Realtime trip matching: exact, then loose-unique, else realtime-only
+**Why:** measured on live data: 77% exact, +11% when ignoring the path code, ~11% are added/rerouted trains. Fuzzy time matching is rejected (false matches).
+
+## 2026-10-19 — "Same platform" = same stop ID + same scheduled track (+ curated island list)
+**Why:** MTA stop IDs are per station + direction, but the NYCT extension gives `scheduled_track` on ~100% of updates. Unknown track → not same platform (repair falls through to step 3, which still finds the train with transfer time).
+
+## 2026-10-19 — The phone is the brain during a trip; the server only re-times
+**Why:** repairs need the phone's location and work offline underground. Server Live Activity pushes are a fallback when the app is suspended. Committed-plan checks on the server re-time the plan (`evaluatePlan`) without needing a full router.
+
+## 2026-10-19 — Trip logic as a pure reducer with effects
+`tripReducer(state, event, ctx) → { state, effects }` in core; the app performs the effects.
+**Why:** fully testable on Windows, replayable from recorded feeds, and the same code can run on the server.
+
+## 2026-10-19 — Workers Paid ($5/mo) from M3; Hono; expo-widgets; react-native-maps
+**Why:** decoding ~800 KB of protobuf every 30 s exceeds the free plan's 10 ms CPU. Hono is the standard small router for Workers. expo-widgets is Expo's stable Live Activity path since SDK 56 (expo-apple-targets kept as fallback for intent buttons). expo-maps is still alpha, so react-native-maps.
+
+## 2026-10-19 — Minimum iOS 17.2
+**Why:** needed for interactive Live Activity buttons and push-to-start.

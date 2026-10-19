@@ -1,5 +1,7 @@
 # Architecture
 
+High-level picture. The detailed, build-to specs are in **[design/](design/README.md)**.
+
 ## Overview
 
 ```
@@ -28,8 +30,8 @@ The **routing engine** (`packages/core`) is shared TypeScript. It runs on the ph
 
 ### 2. Navigation ("Go")
 - One route drawn on the map: MapKit walking polylines + train legs drawn along MTA track shapes.
-- Background location keeps the app running while walking, so it updates the Live Activity directly.
-- Underground (no GPS): progress estimated from the plan; the server pushes Live Activity updates.
+- **The phone is the brain during a trip.** Background location keeps the app running (also underground, where fixes are coarse or missing), so it re-times, repairs, and updates the Live Activity itself.
+- The server is the backup: if the phone's heartbeat goes quiet for more than 90 s, the server re-times the trip and pushes Live Activity updates (no repairs).
 
 ### 3. Committed plans + change alerts
 1. User commits a plan → app sends the server: specific trains, transfers, arrive-by deadline, push token(s).
@@ -78,8 +80,14 @@ A scheduled GitHub Actions job downloads MTA static schedules (including the hou
 
 ```
 apps/mobile          iPhone app (Expo / React Native + small Swift pieces)
-packages/core        routing engine, route repair, feed parsing, ranking, copy generator
+packages/core        routing engine, route repair, feed parsing, ranking, copy generator (pure TS)
 services/api         Cloudflare Workers backend
 tools/gtfs-pipeline  MTA data download + preprocessing
-docs/                planning and project tracking
+tools/cli            plan trips from the terminal (dev)
+tools/feed-recorder  record live feeds for replay tests
+tools/replay         replay recordings through the trip logic
+fixtures/            small committed test data
+docs/                planning, design specs, project tracking
 ```
+
+See [design/conventions.md](design/conventions.md) for package boundaries.

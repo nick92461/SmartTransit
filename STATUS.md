@@ -3,19 +3,33 @@
 _Last updated: 2026-10-19_
 
 ## Where we are
-**Milestone 0 — Project setup: done.** Planning docs written, repo created, `main` and `dev` branches pushed.
-Side-chat decisions (options list, route repair, change notifications, missed-train detection) are logged in
-[docs/decisions.md](docs/decisions.md) and reflected in the product, architecture, testing, and roadmap docs.
-No code yet.
+**Milestone 0 — Project setup: done.**
+- Product plan, side-chat decisions, and the full design are written.
+- Design specs: [docs/design/](docs/design/README.md), built from real MTA data downloaded and decoded on 2026-10-19.
+- Step-by-step build order: [docs/implementation-plan.md](docs/implementation-plan.md).
+- No code yet.
 
-## Next up
-**Milestone 1 — Feasibility spike** (see [docs/roadmap.md](docs/roadmap.md)):
-prove a TypeScript RAPTOR router on real MTA data can produce a correct
-"leave at / catch the / arrive at" plan from two addresses, run entirely on Windows.
+## Next step
+**M1.1 — Monorepo scaffold** (see the implementation plan).
+Workflow: Sonnet explains and gives code in chunks, the owner types it, Sonnet reviews and runs checks. See [CLAUDE.md](CLAUDE.md).
+
+## Measurements so far
+| What | Value | Source |
+|---|---|---|
+| Weekday trips (2026-10-19) | 8,589 | supplemented feed |
+| Live feeds total size | ~810 KB per poll | 8 feeds |
+| Live → schedule trip match | 77% exact, 89% with loose rule | 910 live trips |
+| Trips started (`is_assigned`) | ~50–65% | ACE and 1–7 feeds |
+| Day slice size (gzipped) | _measure in M1.6_ | |
+| Routing time (Node) | _measure in M1.13_ | |
 
 ## Open questions
-- [ ] Can Cloudflare Workers send to Apple's push service (APNs requires HTTP/2)? If not, use Deno Deploy for push sending. Verify in Milestone 3.
-- [ ] How do we know two lines share a platform (route repair step 2)? MTA stop IDs are per station + direction, not per platform. Check the NYCT real-time track fields. Look at this during Milestone 1.
-- [ ] Confirm current pricing: Expo EAS free tier limits, Cloudflare Workers/D1, Google Routes API (dev benchmarking only).
-- [ ] Confirm MTA real-time subway feeds still need no API key, and review MTA data terms of use (attribution, no implied endorsement).
+- [ ] Can a Cloudflare Worker reach APNs (HTTP/2)? First task of M3; fallback is a Deno Deploy relay.
+- [ ] Alerts feed: confirm the Mercury extension fields for planned work (M3).
+- [ ] Can expo-widgets do interactive (App Intent) buttons on the Live Activity? Spike in M5.
+- [ ] Island (cross-platform) pairs for the same-platform rule: build the curated list from recordings + real rides.
+- [ ] Wrong-direction entrances: the entrances data has no direction info. Find another source (e.g. OpenStreetMap) or accept the limitation.
+- [ ] Is the GitHub repo public or private? (Affects the GitHub Actions minute budget for the hourly pipeline.)
+- [ ] Confirm current pricing: Expo EAS free tier limits, Cloudflare Workers Paid, Google Routes API (dev benchmark only).
+- [ ] Review MTA data terms of use (attribution, no implied endorsement).
 - [ ] Final app name ("SmartTransit" is a working name).

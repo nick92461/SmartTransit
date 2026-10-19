@@ -8,7 +8,7 @@ Rough estimates as of 2026-10. **Verify current pricing before relying on them.*
 |---|---|
 | Apple Developer Program | $99/yr |
 | Expo EAS (builds, workflows) | Free tier; ~$19/mo if outgrown |
-| Cloudflare (Workers, D1, R2, Durable Objects) | $0–5/mo |
+| Cloudflare (Workers, D1, R2, Durable Objects) | $0 until M3, then **$5/mo** (Workers Paid: decoding the feeds every 30 s needs more CPU than the free plan allows) |
 | MapKit, APNs, Live Activities, MTA data | $0 |
 | Occasional cloud Mac day | ~$0–30 total |
 | **Total** | **~$100–250** |
@@ -18,7 +18,7 @@ Routing on the phone + free MTA data + free MapKit means a typical user costs cl
 
 | Daily users | Estimated monthly cost |
 |---|---|
-| ~1,000 | ~$0–5 |
+| ~1,000 | ~$5 |
 | ~10,000 | ~$5–25 |
 
 ## Why we don't use Google for routing

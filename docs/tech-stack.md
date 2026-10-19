@@ -1,61 +1,59 @@
 # Tech stack
 
+Summary. Details and reasons are in [design/](design/README.md) and [decisions.md](decisions.md).
+
 ## Languages
-- **TypeScript** (~90%): app, server, routing engine, data pipeline.
-- **Swift / SwiftUI**: Live Activity widget and a bridge to MapKit walking directions and place search.
-- **SQL**: a few server tables.
+- **TypeScript** (~90%): app, server, routing engine, data pipeline, dev tools.
+- **Swift / SwiftUI**: MapKit bridge module; Live Activity pieces that expo-widgets can't cover.
+- **SQL**: D1 schema.
 
 ## Monorepo
-- **pnpm workspaces** (or npm workspaces)
+- **npm workspaces** (npm 11, already installed)
 - **GitHub + GitHub Actions** for CI and the scheduled data pipeline
-- ESLint, Prettier, TypeScript strict mode
+- ESLint (flat config), Prettier, TypeScript strict mode
 
-## iPhone app — `apps/mobile`
+## Routing engine: `packages/core`
+Pure TypeScript that runs unchanged in Hermes, Cloudflare Workers, and Node. **No runtime dependencies.**
+- RAPTOR + Range RAPTOR router
+- Own small **protobuf reader** for GTFS-RT + the NYCT extension (replaces `gtfs-realtime-bindings`)
+- Realtime matching/overlay, options ranking, feasibility/run-for-it
+- Trip state machine, route repair, notification policy, missed-train scorer, plan evaluation
+- Copy generator (NYC voice), NYC time formatting
 
-| Need | Choice |
-|---|---|
-| Framework | **React Native + Expo** (development builds, not Expo Go) |
-| Screens / navigation | **Expo Router** |
-| Map | **react-native-maps** (Apple Maps on iOS) |
-| Walking directions + place search | Small **Swift module** (Expo Modules API) calling MapKit `MKDirections` / `MKLocalSearch` |
-| Location (incl. background) | **expo-location** + **expo-task-manager** |
-| Notifications | **expo-notifications**, with action buttons (notification categories) for "Yep · Missed it · Not here yet" |
-| Lock screen / Dynamic Island | **Swift + SwiftUI** with ActivityKit + WidgetKit, added via **expo-apple-targets** |
-| Lock-screen buttons on the Live Activity | **App Intents** (Swift, iOS 17+) |
-| Motion signals (missed-train detection) | **expo-sensors**, or Core Motion activity detection via the Swift module if needed |
-| On-device storage | **expo-sqlite** |
-| App state | React state + **Zustand** |
-| Styling | Plain React Native `StyleSheet` |
+## Data pipeline: `tools/gtfs-pipeline`
+Node + **fflate** (unzip) + **csv-parse** (streaming CSV). Output: `network.json.gz`, per-day slices, `manifest.json`. Publishes to R2.
 
-## Routing engine — `packages/core`
-Pure TypeScript, no platform code, so it runs on phone, server, and in tests on Windows.
-- **RAPTOR** router (subway only, transfers included)
-- GTFS-Realtime decoding via **gtfs-realtime-bindings**
-- Mode ranking (Now / Leave at / Arrive by), "can I make it / run for it" logic
-- Route repair (4-step order) and the alternatives check, with tunable settings
-- Missed-train confidence scoring (pure logic; the app supplies the signals)
-- Copy generator (NYC voice), including change notifications with uptown/downtown/last-stop direction names
+## Dev tools: `tools/cli`, `tools/feed-recorder`, `tools/replay`
+Node scripts using core.
 
-## Server — `services/api`
+## Server: `services/api`
 
 | Need | Choice |
 |---|---|
-| Runtime | **Cloudflare Workers** (TypeScript) |
-| MTA feed polling (~30 s) | **Durable Object** with an alarm, holding the latest snapshot |
-| Committed plans + push tokens | **Cloudflare D1** (SQLite) |
-| Push + Live Activity updates | Direct to **APNs**, token-based auth (.p8 key) |
-| Static data files | **Cloudflare R2** |
+| Runtime | **Cloudflare Workers** (Paid plan, $5/mo, for CPU headroom) |
+| HTTP routing | **Hono** |
+| Feed polling (~30 s) + monitor | **Durable Object** (`FeedPoller`) with alarms |
+| Devices, plans, telemetry | **D1** (SQLite) |
+| Data bundle | **R2** |
+| Push | Direct to **APNs** (JWT via WebCrypto); fallback relay on **Deno Deploy** if HTTP/2 fails |
+| Tests | **Vitest + @cloudflare/vitest-pool-workers** |
 
-⚠️ To verify: APNs requires HTTP/2. If Workers can't connect, move only push sending to **Deno Deploy** (free tier).
+## iPhone app: `apps/mobile`
 
-## Data pipeline — `tools/gtfs-pipeline`
-Node/TypeScript script on a GitHub Actions schedule: download MTA static GTFS + entrances → preprocess → upload to R2.
-
-## Testing
-See [testing.md](testing.md). **Vitest**, **Jest (jest-expo) + React Native Testing Library**, **Maestro** on EAS Workflows.
+| Need | Choice |
+|---|---|
+| Framework | **React Native + Expo** (latest SDK; development builds), iOS 17.2+ |
+| Navigation | **Expo Router** |
+| Map | **react-native-maps** (Apple Maps). expo-maps is still alpha |
+| Search + walking | Own **Swift Expo module** over MapKit (`MKLocalSearchCompleter`, `MKDirections`) |
+| Location | **expo-location** + **expo-task-manager** |
+| Motion | **expo-sensors** or Core Motion via the Swift module (spike in M5) |
+| Notifications | **expo-notifications** (with action buttons) |
+| Live Activity | **expo-widgets**; small Swift target via **expo-apple-targets** only if needed for intent buttons |
+| State | **Zustand** |
+| Storage | **expo-sqlite** (key-value), **expo-file-system** (data files), **expo-secure-store** (device secret) |
+| Tests | **Jest (jest-expo) + React Native Testing Library**; **Maestro** E2E on EAS Workflows |
 
 ## Build & ship
-- **EAS Build**: iOS builds in the cloud (no Mac)
-- **EAS Submit**: TestFlight / App Store
-- **EAS Update**: over-the-air fixes to the app's TypeScript code
-- **Sentry** (free tier): crash reporting (optional)
+- **EAS Build** (iOS builds in the cloud, no Mac), **EAS Submit**, **EAS Update** (over-the-air fixes)
+- **Sentry** (free tier), optional
