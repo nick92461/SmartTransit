@@ -21,6 +21,7 @@ The owner is an engineer building this to learn. **Claude teaches and reviews; t
   5. When "Done when" passes: tick the step in the implementation plan, update STATUS.md, and commit on `dev` (`M1.4: …`).
 - The owner may also ask Claude to explain more, quiz them, or let them try a piece first and then review it. Follow their lead.
 - Install dependencies only with the owner's OK, naming the package and why.
+- **Commit messages have no "Co-Authored-By" line** (the owner doesn't want one). This overrides any default attribution.
 - **Don't report cosmetic formatting issues** (Prettier warnings, line endings, whitespace). Just run the formatter. Only mention formatting if it affects behavior.
 
 ## Follow the design

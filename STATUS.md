@@ -8,10 +8,11 @@ _Last updated: 2026-10-19_
 - Design specs: [docs/design/](docs/design/README.md), built from real MTA data downloaded and decoded on 2026-10-19.
 - Step-by-step build order: [docs/implementation-plan.md](docs/implementation-plan.md).
 - Competitive check done (Citymapper, [docs/competitors.md](docs/competitors.md)). **Planned trips** are now the headline feature; departure picker and "2 train" labels added to the specs.
+- **M1.2 done:** all shared model types and `DEFAULT_CONFIG` in `packages/core`, exported from `index.ts`, with a test.
 - **M1.1 done:** npm workspaces, shared tsconfig, `packages/core` with a Vitest test, ESLint, Prettier, editor settings. Lint, test, and typecheck all pass.
 
 ## Next step
-**M1.2 — Core model types + config** (see the implementation plan).
+**M1.3 — Pipeline: download + unzip + CSV streaming** (see the implementation plan).
 Workflow: Sonnet explains and gives code in chunks, the owner types it, Sonnet reviews and runs checks. See [CLAUDE.md](CLAUDE.md).
 
 ## Measurements so far

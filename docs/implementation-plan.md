@@ -24,7 +24,7 @@ Goal of the milestone: `npm run cli -- plan --from 40.7359,-73.9911 --to 40.7128
   - Spec: conventions.md (layout, TypeScript).
   - Done when: `npm test`, `npm run typecheck`, `npm run lint` all pass from the root.
 
-- [ ] **M1.2 Core model types + config**
+- [x] **M1.2 Core model types + config**
   - Goal: `packages/core/src/model/*.ts` and `config.ts` exactly as in data-model.md; `index.ts` exports.
   - Learn: discriminated unions, `Record`, `readonly`, `as const`, type-only imports.
   - Spec: data-model.md (all), conventions.md (config).
