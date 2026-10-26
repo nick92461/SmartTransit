@@ -18,7 +18,7 @@ Milestones M1–M2 are detailed. M3–M7 are outlined; **refine each with Opus a
 Goal of the milestone: `npm run cli -- plan --from 40.7359,-73.9911 --to 40.7128,-74.0060` prints a correct
 "Leave at… walk to… catch the… arrive at…" using today's schedule plus live trains.
 
-- [ ] **M1.1 Monorepo scaffold**
+- [x] **M1.1 Monorepo scaffold**
   - Goal: root `package.json` (npm workspaces: `packages/*`, `tools/*`, `services/*`, `apps/*`), `tsconfig.base.json`, Prettier, ESLint (flat config), `packages/core` with Vitest and one trivial test.
   - Learn: npm workspaces, TS project config, strict mode flags, ES modules, Vitest basics.
   - Spec: conventions.md (layout, TypeScript).
